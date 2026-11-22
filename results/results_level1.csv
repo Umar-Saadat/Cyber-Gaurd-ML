@@ -1,0 +1,4 @@
+Model,Level,Accuracy,Precision,Recall,F1-Score,Training_Time_s,Training_Accuracy,CM_Plot_Path
+Random Forest,level1,0.993,0.992,0.994,0.993,0.73,0.9998,D:\Umar Saddat\Study\1 University\Semester 5\ML\ML PROJECT\results\cm_level1_Random_Forest.png
+Decision Tree,level1,0.984,0.9764,0.992,0.9841,0.2,1.0,D:\Umar Saddat\Study\1 University\Semester 5\ML\ML PROJECT\results\cm_level1_Decision_Tree.png
+Logistic Regression,level1,0.899,0.88,0.924,0.9015,0.15,0.899,D:\Umar Saddat\Study\1 University\Semester 5\ML\ML PROJECT\results\cm_level1_Logistic_Regression.png

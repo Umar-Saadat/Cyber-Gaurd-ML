@@ -1,0 +1,2 @@
+Model,Level,Target_Column,MAE,MSE,RMSE,R2-Score,Training_Time_s,Plot_Path
+Linear Regression,regression,Flow Duration,325839.62,714174750059.6,845088.6,0.9992,0.05,D:\Umar Saddat\Study\1 University\Semester 5\ML\ML PROJECT\results\reg_actual_vs_pred_Linear_Regression.png

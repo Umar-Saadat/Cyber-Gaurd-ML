@@ -1,0 +1,38 @@
+
+# Dataset - Never upload
+dataset/
+datasets/
+data/
+
+# Python environment
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# ML trained models (optional: keep local)
+*.pkl
+*.joblib
+*.h5
+*.keras
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Frontend dependencies
+node_modules/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

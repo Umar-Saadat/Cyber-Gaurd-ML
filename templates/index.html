@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberGuard ML — Modern SOC Intrusion Detection & Threat Intelligence</title>
+  
+  <!-- Google Fonts: Inter & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js for High Performance Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom Cyber SOC Theme Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- ================= SIDEBAR NAVIGATION ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div class="brand-title">
+        CyberGuard ML
+        <span>SOC Threat Engine</span>
+      </div>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item active" data-tab="tab-dashboard">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>SOC Dashboard</span>
+      </li>
+      <li class="nav-item" data-tab="tab-dataset">
+        <i class="fa-solid fa-database"></i>
+        <span>Dataset Explorer</span>
+      </li>
+      <li class="nav-item" data-tab="tab-preprocessing">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Preprocessing</span>
+      </li>
+      <li class="nav-item" data-tab="tab-training">
+        <i class="fa-solid fa-brain"></i>
+        <span>Model Training</span>
+      </li>
+      <li class="nav-item" data-tab="tab-evaluation">
+        <i class="fa-solid fa-square-poll-vertical"></i>
+        <span>Evaluation & Metrics</span>
+      </li>
+      <li class="nav-item" data-tab="tab-prediction">
+        <i class="fa-solid fa-radar"></i>
+        <span>Live Threat Radar</span>
+      </li>
+      <li class="nav-item" data-tab="tab-docs">
+        <i class="fa-solid fa-book-bookmark"></i>
+        <span>Documentation</span>
+      </li>
+    </ul>
+
+    <div class="system-live-pill">
+      <div class="pulse-dot"></div>
+      <div class="system-status-text">
+        <b>Engine Online</b>
+        <span id="sidebar-models-stat">Loading models...</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN VIEW WRAPPER ================= -->
+  <div class="main-wrapper">
+    <!-- TOP STATUS BAR -->
+    <header class="topbar">
+      <div class="page-title-badge">
+        <h1 id="topbar-title">Security Operations Center Dashboard</h1>
+        <span class="badge-soc">CICIDS2017 AI Defense</span>
+      </div>
+      <div class="topbar-stats">
+        <div class="quick-stat">
+          <i class="fa-solid fa-file-csv" style="color:var(--cyber-cyan)"></i>
+          Files: <b id="top-files-count">0</b>
+        </div>
+        <div class="quick-stat">
+          <i class="fa-solid fa-microchip" style="color:var(--purple-ai)"></i>
+          AI Models: <b id="top-models-count">0</b>
+        </div>
+        <button class="btn-secondary" onclick="refreshSystemStatus()">
+          <i class="fa-solid fa-rotate"></i> Sync
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT PANES -->
+    <main class="content-area">
+
+      <!-- ================= 1. DASHBOARD OVERVIEW ================= -->
+      <section id="tab-dashboard" class="tab-pane active">
+        <div class="hero-card">
+          <div class="hero-content">
+            <h2>AI-Powered Network Intrusion Detection & Threat Intelligence</h2>
+            <p>
+              Autonomous, multi-tiered machine learning defense platform built with Python & Scikit-Learn.
+              CyberGuard ML analyzes bidirectional network flows to detect attacks, classify threat families, 
+              and predict flow duration anomalies in real-time.
+            </p>
+            <div class="hero-tags">
+              <span class="tag-pill"><i class="fa-solid fa-shield-virus" style="color:var(--cyber-green)"></i> Level 1: Binary Triage (BENIGN vs ATTACK)</span>
+              <span class="tag-pill"><i class="fa-solid fa-network-wired" style="color:var(--purple-ai)"></i> Level 2: Multiclass Threat Classification</span>
+              <span class="tag-pill"><i class="fa-solid fa-chart-line" style="color:var(--amber-reg)"></i> Level 3: Flow Duration Regression</span>
+              <span class="tag-pill"><i class="fa-solid fa-gauge-high" style="color:var(--cyber-cyan)"></i> 1–100% Probability Confidence</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Stat Cards Grid -->
+        <div class="metrics-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fa-solid fa-folder-open"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-files">0</div>
+              <div class="stat-label">Detected CSV Datasets</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon cyan"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-l1">0</div>
+              <div class="stat-label">Level 1 Binary Models</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="fa-solid fa-bug"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-l2">0</div>
+              <div class="stat-label">Level 2 Threat Classifiers</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber"><i class="fa-solid fa-stopwatch"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-reg">0</div>
+              <div class="stat-label">Continuous Flow Regressors</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Architecture Blueprint -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="fa-solid fa-diagram-project"></i> Multi-Tiered Intelligent Defense Architecture</h3>
+            <button class="btn-cyber" onclick="switchTab('tab-prediction')">
+              <i class="fa-solid fa-bolt"></i> Test Live Flow
+            </button>
+          </div>
+          <div class="arch-grid">
+            <div class="arch-node l1">
+              <h4>
+                <span>Level 1: Binary Triage</span>
+                <span class="badge-chip" style="background:rgba(0,245,212,0.15); color:var(--cyber-green)">Perimeter</span>
+              </h4>
+              <p>Distinguishes safe normal connections (BENIGN) from active threats (ATTACK) using high-speed classification.</p>
+              <div class="arch-badges">
+                <span class="badge-chip">Logistic Regression</span>
+                <span class="badge-chip">Random Forest</span>
+                <span class="badge-chip">Decision Tree</span>
+                <span class="badge-chip">KNN</span>
+                <span class="badge-chip">SVM</span>
+              </div>
+            </div>
+
+            <div class="arch-node l2">
+              <h4>
+                <span>Level 2: Threat Taxonomy</span>
+                <span class="badge-chip" style="background:rgba(168,85,247,0.15); color:var(--purple-ai)">Analysis</span>
+              </h4>
+              <p>Classifies flagged intrusions into specific attack vectors with genuine 1–100% confidence scores via <code>predict_proba()</code>.</p>
+              <div class="arch-badges">
+                <span class="badge-chip">DDoS</span>
+                <span class="badge-chip">PortScan</span>
+                <span class="badge-chip">FTP-Patator</span>
+                <span class="badge-chip">SSH-Patator</span>
+                <span class="badge-chip">Web Attacks</span>
+              </div>
+            </div>
+
+            <div class="arch-node l3">
+              <h4>
+                <span>Level 3: Flow Regression</span>
+                <span class="badge-chip" style="background:rgba(245,158,11,0.15); color:var(--amber-reg)">Behavior</span>
+              </h4>
+              <p>Models continuous connection parameters (e.g. Flow Duration). Large deviations reveal stealthy or anomalous connections.</p>
+              <div class="arch-badges">
+                <span class="badge-chip">Linear Regression</span>
+                <span class="badge-chip">Ridge</span>
+                <span class="badge-chip">Decision Tree</span>
+                <span class="badge-chip">Random Forest Regressor</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. DATASET EXPLORER ================= -->
+      <section id="tab-dataset" class="tab-pane">
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="fa-solid fa-database"></i> Detected CICIDS2017 Datasets</h3>
+            <button class="btn-secondary" onclick="loadDatasetExplorer()">
+              <i class="fa-solid fa-arrows-rotate"></i> Reload Dataset Preview
+            </button>
+          </div>
+          <div id="dataset-file-list" style="margin-bottom: 20px;">
+            <p style="color:var(--text-muted)">Scanning for CSV datasets...</p>
+          </div>
+
+          <!-- Label Distribution & Info Grid -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px;">
+            <div style="background:rgba(15,23,42,0.6); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border-subtle)">
+              <h4 style="margin-bottom:14px; color:var(--cyber-cyan)"><i class="fa-solid fa-chart-pie"></i> Traffic Class Distribution</h4>
+              <div style="max-height: 240px; display:flex; justify-content:center;">
+                <canvas id="labelChart"></canvas>
+              </div>
+            </div>
+            <div style="background:rgba(15,23,42,0.6); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border-subtle)">
+              <h4 style="margin-bottom:14px; color:var(--cyber-green)"><i class="fa-solid fa-info-circle"></i> Summary Highlights</h4>
+              <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; font-size:0.88rem; color:var(--text-muted)" id="dataset-summary-list">
+                <li>Total Columns: <b id="ds-col-count" style="color:#fff">-</b></li>
+                <li>Preview Sample: <b id="ds-row-count" style="color:#fff">-</b> rows</li>
+                <li>Label Target Column: <code id="ds-label-col" style="color:var(--cyber-green)">Label</code></li>
+                <li>Missing Values: <span style="color:var(--cyber-green)">Imputed during pipeline</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Interactive Table Preview -->
+          <h4 style="margin-bottom: 12px; font-size:1rem; color:#fff"><i class="fa-solid fa-table"></i> Sample Feature Records (Top 50)</h4>
+          <div class="table-responsive">
+            <table class="cyber-table" id="dataset-preview-table">
+              <thead><tr id="preview-headers"><th>Loading...</th></tr></thead>
+              <tbody id="preview-body"><tr><td>Loading dataset records...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. PREPROCESSING PIPELINE ================= -->
+      <section id="tab-preprocessing" class="tab-pane">
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="fa-solid fa-sliders"></i> Preprocessing & Data Cleaning Pipeline</h3>
+            <button class="btn-cyber" onclick="loadPreprocessingStats()">
+              <i class="fa-solid fa-play"></i> Run Cleaning Audit
+            </button>
+          </div>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom: 24px;">
+            The preprocessing pipeline applies industry-standard cleansing tailored for network flow calculations to guarantee zero data leakage.
+          </p>
+
+          <div class="arch-grid" style="margin-bottom: 24px;">
+            <div class="arch-node">
+              <h4>1. Header Sanitization</h4>
+              <p>Trims leading/trailing whitespace across all 79+ column headers (e.g. <code>' Flow Duration'</code> → <code>'Flow Duration'</code>).</p>
+            </div>
+            <div class="arch-node">
+              <h4>2. Infinite Value Cleaning</h4>
+              <p>Replaces mathematical overflows (<code>+Inf</code> / <code>-Inf</code> from zero division in Flow Bytes/s) with safe feature maximums or medians.</p>
+            </div>
+            <div class="arch-node">
+              <h4>3. Duplicate & Constant Pruning</h4>
+              <p>Eliminates redundant packet logs and drops zero-variance constant features that carry zero discriminative power.</p>
+            </div>
+          </div>
+
+          <!-- Cleaning Audit Report Cards -->
+          <div class="panel" style="background:rgba(15,23,42,0.85)">
+            <h4 style="margin-bottom: 16px; color:var(--cyber-green)"><i class="fa-solid fa-clipboard-check"></i> Latest Cleaning Audit Report</h4>
+            <div class="metrics-grid" style="margin-bottom: 0;">
+              <div class="stat-card">
+                <div class="stat-icon cyan"><i class="fa-solid fa-list-ol"></i></div>
+                <div class="stat-info">
+                  <div class="stat-value" id="clean-orig-rows">-</div>
+                  <div class="stat-label">Original Sample Rows</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon green"><i class="fa-solid fa-check-double"></i></div>
+                <div class="stat-info">
+                  <div class="stat-value" id="clean-clean-rows">-</div>
+                  <div class="stat-label">Cleaned Valid Rows</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon red"><i class="fa-solid fa-clone"></i></div>
+                <div class="stat-info">
+                  <div class="stat-value" id="clean-dups-dropped">-</div>
+                  <div class="stat-label">Duplicate Rows Dropped</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon amber"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                <div class="stat-info">
+                  <div class="stat-value" id="clean-nulls-handled">-</div>
+                  <div class="stat-label">Inf/Null Handled</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. MODEL TRAINING CENTER ================= -->
+      <section id="tab-training" class="tab-pane">
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="fa-solid fa-brain"></i> Interactive AI Model Training Center</h3>
+            <span class="badge-soc">Scikit-Learn Engine</span>
+          </div>
+
+          <form id="train-form" onsubmit="handleTrainSubmit(event)">
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin-bottom: 20px;">
+              <!-- 1. Detection Level -->
+              <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-layer-group"></i> 1. Select Training Target</label>
+                <select class="cyber-select" id="train-level" onchange="updateModelOptions()">
+                  <option value="level1">Level 1: Binary (BENIGN vs ATTACK)</option>
+                  <option value="level2">Level 2: Multiclass (Attack Type Subclassification)</option>
+                  <option value="regression">Level 3: Flow Regression (Continuous Metrics)</option>
+                </select>
+              </div>
+
+              <!-- 2. Algorithm Selection -->
+              <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-microchip"></i> 2. Machine Learning Algorithm</label>
+                <select class="cyber-select" id="train-model-name">
+                  <!-- Dynamically populated -->
+                </select>
+              </div>
+
+              <!-- 3. Target Metric (for Regression) -->
+              <div class="form-group" id="reg-target-group" style="display:none;">
+                <label class="form-label"><i class="fa-solid fa-bullseye"></i> 3. Regression Target Variable</label>
+                <select class="cyber-select" id="train-target-col">
+                  <option value="Flow Duration">Flow Duration (Microseconds)</option>
+                  <option value="Flow Bytes/s">Flow Bytes/s</option>
+                  <option value="Total Fwd Packets">Total Fwd Packets</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom: 24px;">
+              <!-- Sample Size Slider -->
+              <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-arrows-split-up-and-left"></i> Training Sample Rows</label>
+                <div class="range-slider-wrapper">
+                  <input type="range" class="cyber-range" id="train-sample-size" min="1000" max="25000" step="1000" value="5000" oninput="document.getElementById('sample-val-badge').innerText = Number(this.value).toLocaleString()">
+                  <span class="range-val-badge" id="sample-val-badge">5,000</span>
+                </div>
+                <small style="color:var(--text-muted); font-size:0.75rem;">Smaller samples (2,500 - 5,000) train in seconds; larger samples boost deep recall.</small>
+              </div>
+
+              <!-- Test Split Slider -->
+              <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-pie-chart"></i> Test Split Ratio</label>
+                <div class="range-slider-wrapper">
+                  <input type="range" class="cyber-range" id="train-test-split" min="0.1" max="0.4" step="0.05" value="0.2" oninput="document.getElementById('split-val-badge').innerText = (this.value * 100).toFixed(0) + '%'">
+                  <span class="range-val-badge" id="split-val-badge">20%</span>
+                </div>
+                <small style="color:var(--text-muted); font-size:0.75rem;">Standard 80% train / 20% test split prevents overfitting.</small>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-bottom: 20px;">
+              <button type="submit" class="btn-cyber" id="train-submit-btn">
+                <i class="fa-solid fa-bolt"></i> Start Model Training
+              </button>
+            </div>
+          </form>
+
+          <!-- Training Output Console -->
+          <div class="terminal-box" id="train-terminal">
+            > Ready to train model. Select algorithm and click 'Start Model Training'...
+          </div>
+
+          <!-- Training Result Card -->
+          <div id="train-result-card" style="display:none; margin-top:20px;" class="panel">
+            <h4 style="color:var(--cyber-green); margin-bottom:12px;"><i class="fa-solid fa-circle-check"></i> Model Trained & Saved Successfully!</h4>
+            <div class="metrics-grid" id="train-metrics-container" style="margin-bottom:0;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. EVALUATION & METRICS ================= -->
+      <section id="tab-evaluation" class="tab-pane">
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="fa-solid fa-square-poll-vertical"></i> Model Performance Benchmarks</h3>
+            <button class="btn-secondary" onclick="loadEvaluationResults()">
+              <i class="fa-solid fa-rotate"></i> Refresh Results
+            </button>
+          </div>
+
+          <!-- Subtabs for Level 1, Level 2, and Regression -->
+          <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border-subtle); padding-bottom:10px;">
+            <button class="btn-secondary active" id="eval-tab-l1-btn" onclick="showEvalSubTab('l1')">🟢 Level 1: Binary Classification</button>
+            <button class="btn-secondary" id="eval-tab-l2-btn" onclick="showEvalSubTab('l2')">🟣 Level 2: Multiclass Attack Types</button>
+            <button class="btn-secondary" id="eval-tab-reg-btn" onclick="showEvalSubTab('reg')">🟡 Level 3: Flow Duration Regression</button>
+          </div>
+
+          <!-- Level 1 Table -->
+          <div id="eval-sub-l1" class="eval-subpane">
+            <h4 style="margin-bottom:12px; color:var(--cyber-green)">Level 1 Metrics Table (results_level1.csv)</h4>
+            <div class="table-responsive" style="margin-bottom:24px;">
+              <table class="cyber-table" id="table-eval-l1">
+                <thead><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Train Time (s)</th></tr></thead>
+                <tbody><tr><td colspan="6">Loading Level 1 results...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Level 2 Table -->
+          <div id="eval-sub-l2" class="eval-subpane" style="display:none;">
+            <h4 style="margin-bottom:12px; color:var(--purple-ai)">Level 2 Metrics Table (results_level2.csv)</h4>
+            <div class="table-responsive" style="margin-bottom:24px;">
+              <table class="cyber-table" id="table-eval-l2">
+                <thead><tr><th>Model</th><th>Accuracy</th><th>Precision (Macro)</th><th>Recall (Macro)</th><th>F1-Score (Macro)</th><th>Train Time (s)</th></tr></thead>
+                <tbody><tr><td colspan="6">Loading Level 2 results...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Regression Table -->
+          <div id="eval-sub-reg" class="eval-subpane" style="display:none;">
+            <h4 style="margin-bottom:12px; color:var(--amber-reg)">Regression Metrics Table (results_regression.csv)</h4>
+            <div class="table-responsive" style="margin-bottom:24px;">
+              <table class="cyber-table" id="table-eval-reg">
+                <thead><tr><th>Model</th><th>Target Column</th><th>MAE</th><th>MSE</th><th>RMSE</th><th>R²-Score</th><th>Train Time (s)</th></tr></thead>
+                <tbody><tr><td colspan="7">Loading Regression results...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Plot Gallery -->
+          <h4 style="margin-bottom: 14px; color:#fff"><i class="fa-solid fa-images"></i> Generated Visualizations & Confusion Matrices</h4>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:18px;" id="plots-gallery">
+            <p style="color:var(--text-muted)">Scanning results directory for plots...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 6. THREAT PREDICTION & RADAR ================= -->
+      <section id="tab-prediction" class="tab-pane">
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="fa-solid fa-radar"></i> Live Threat Intelligence & Prediction Radar</h3>
+            <span class="badge-soc">Real-time Inference</span>
+          </div>
+
+          <!-- Model Selection Pickers -->
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-bottom: 24px; background:rgba(15,23,42,0.6); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border-subtle)">
+            <div>
+              <label class="form-label" style="font-size:0.78rem;">🟢 1. Level 1 Binary Model:</label>
+              <select class="cyber-select" id="pred-l1-select"></select>
+            </div>
+            <div>
+              <label class="form-label" style="font-size:0.78rem;">🟣 2. Level 2 Attack Subtype Model:</label>
+              <select class="cyber-select" id="pred-l2-select"></select>
+            </div>
+            <div>
+              <label class="form-label" style="font-size:0.78rem;">🟡 3. Regression Model:</label>
+              <select class="cyber-select" id="pred-reg-select"></select>
+            </div>
+          </div>
+
+          <!-- Mode Switcher -->
+          <div style="display:flex; gap:12px; margin-bottom:20px;">
+            <button class="btn-cyber" id="pred-mode-single-btn" onclick="togglePredictionMode('single')">
+              <i class="fa-solid fa-fingerprint"></i> Manual Single Flow Simulator
+            </button>
+            <button class="btn-secondary" id="pred-mode-batch-btn" onclick="togglePredictionMode('batch')">
+              <i class="fa-solid fa-file-csv"></i> Batch CSV Upload Analysis
+            </button>
+          </div>
+
+          <!-- SINGLE FLOW SIMULATOR -->
+          <div id="pred-single-container">
+            <!-- Predefined Attack Type Selector & Reset Controls -->
+            <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom: 22px; background:rgba(15,23,42,0.65); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+              <div style="flex:1; min-width:280px;">
+                <label class="form-label" style="font-size:0.82rem; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                  <i class="fa-solid fa-crosshairs" style="color:var(--cyber-cyan)"></i>
+                  <span>Predefined Attack-Type Test Scenario:</span>
+                </label>
+                <select class="cyber-select" id="pred-attack-sample-select" onchange="onAttackSampleSelected(this.value)">
+                  <option value="">-- Loading Predefined Attack Types from Dataset... --</option>
+                </select>
+                <small style="color:var(--text-muted); font-size:0.74rem; display:block; margin-top:4px;">
+                  Selecting an attack type populates realistic sample features from that attack class. You can edit them manually.
+                </small>
+              </div>
+              <div style="display:flex; gap:10px;">
+                <button type="button" class="btn-secondary" style="padding:9px 16px; font-size:0.8rem;" onclick="clearManualFields()" title="Clear all input fields for fresh manual entry">
+                  <i class="fa-solid fa-eraser"></i> Clear Fields
+                </button>
+                <button type="button" class="btn-secondary" style="padding:9px 16px; font-size:0.8rem;" onclick="resetManualFields()" title="Reset all input fields to default benign baseline">
+                  <i class="fa-solid fa-rotate-left"></i> Reset Defaults
+                </button>
+              </div>
+            </div>
+
+            <!-- Features Input Grid -->
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-bottom: 24px;">
+              <div class="form-group">
+                <label class="form-label">Destination Port</label>
+                <input type="number" class="cyber-input" id="feat-port" value="80">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Flow Duration (μs)</label>
+                <input type="number" class="cyber-input" id="feat-duration" value="100000">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Total Fwd Packets</label>
+                <input type="number" class="cyber-input" id="feat-fwd-pkts" value="10">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Total Backward Packets</label>
+                <input type="number" class="cyber-input" id="feat-bwd-pkts" value="8">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Total Length Fwd Packets</label>
+                <input type="number" class="cyber-input" id="feat-fwd-len" value="500">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Total Length Bwd Packets</label>
+                <input type="number" class="cyber-input" id="feat-bwd-len" value="800">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Flow Bytes/s</label>
+                <input type="number" class="cyber-input" id="feat-bytes-sec" value="13000">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Flow Packets/s</label>
+                <input type="number" class="cyber-input" id="feat-pkts-sec" value="180">
+              </div>
+              <div class="form-group">
+                <label class="form-label">SYN Flag Count</label>
+                <input type="number" class="cyber-input" id="feat-syn-count" value="1">
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:center; margin-bottom: 24px;">
+              <button class="btn-cyber" style="padding:14px 40px; font-size:1rem;" onclick="analyzeSingleFlow()">
+                <i class="fa-solid fa-radar"></i> Analyze Network Flow Now
+              </button>
+            </div>
+
+            <!-- Single Prediction Dynamic Verdict Card -->
+            <div id="verdict-container" style="display:none;">
+              <div class="threat-verdict-card" id="verdict-card">
+                <!-- Column 1: Status -->
+                <div class="verdict-header">
+                  <div class="verdict-icon" id="verdict-icon"><i class="fa-solid fa-shield"></i></div>
+                  <div>
+                    <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted)">Level 1 Triage</span>
+                    <h3 id="verdict-l1-text" style="font-size:1.6rem; font-weight:800">-</h3>
+                    <span id="verdict-l1-badge" class="badge-chip">Detection Active</span>
+                  </div>
+                </div>
+
+                <!-- Column 2: Attack Classification & Confidence -->
+                <div>
+                  <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted)">Level 2 Classification</span>
+                  <h4 id="verdict-l2-type" style="font-size:1.25rem; font-weight:700; color:#fff; margin:4px 0;">-</h4>
+                  <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-top:8px;">
+                    <span style="color:var(--text-muted)">Attack Confidence:</span>
+                    <b id="verdict-conf-text" style="color:var(--cyber-green)">0.0%</b>
+                  </div>
+                  <div class="confidence-meter">
+                    <div class="confidence-fill" id="verdict-conf-bar" style="width:0%"></div>
+                  </div>
+                </div>
+
+                <!-- Column 3: Regression Flow Prediction -->
+                <div style="border-left:1px solid var(--border-subtle); padding-left:20px;">
+                  <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted)">Level 3 Regression</span>
+                  <h4 id="verdict-reg-title" style="font-size:0.9rem; color:var(--amber-reg); margin:4px 0;">Expected Flow Duration</h4>
+                  <div style="font-size:1.5rem; font-weight:800; color:#fff;" id="verdict-reg-val">-</div>
+                  <small style="color:var(--text-muted); font-size:0.74rem;">Baseline behavioral duration signature</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BATCH CSV UPLOAD CONTAINER -->
+          <div id="pred-batch-container" style="display:none;">
+            <div class="dropzone" id="csv-dropzone" onclick="document.getElementById('csv-file-input').click()">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <h4 style="font-size:1.1rem; margin-bottom:6px;">Drag & Drop Test Traffic CSV Here</h4>
+              <p style="color:var(--text-muted); font-size:0.85rem;">or click to browse from your computer (e.g. Wireshark or CICFlowMeter exports)</p>
+              <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleFileSelected(event)">
+            </div>
+            <div id="file-chosen-name" style="margin-top:10px; font-size:0.88rem; color:var(--cyber-cyan); text-align:center;"></div>
+
+            <div style="display:flex; justify-content:center; margin: 20px 0;">
+              <button class="btn-cyber" id="batch-analyze-btn" disabled onclick="executeBatchAnalysis()">
+                <i class="fa-solid fa-play"></i> Run Batch Security Analysis
+              </button>
+            </div>
+
+            <!-- Batch Summary Stats -->
+            <div id="batch-results-panel" style="display:none;">
+              <div class="metrics-grid">
+                <div class="stat-card">
+                  <div class="stat-icon cyan"><i class="fa-solid fa-list-check"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value" id="batch-total-rows">0</div>
+                    <div class="stat-label">Total Analyzed Rows</div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value" id="batch-benign-count">0</div>
+                    <div class="stat-label">Normal Flows (BENIGN)</div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value" id="batch-attack-count">0</div>
+                    <div class="stat-label">Detected Attacks</div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon purple"><i class="fa-solid fa-percent"></i></div>
+                  <div class="stat-info">
+                    <div class="stat-value" id="batch-avg-conf">0.0%</div>
+                    <div class="stat-label">Mean Confidence Score</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h4 style="color:#fff;"><i class="fa-solid fa-table-list"></i> Predicted Threat Stream (Sample Preview)</h4>
+                <a id="batch-download-link" class="btn-cyber" style="text-decoration:none; padding:8px 16px; font-size:0.82rem;" href="#" target="_blank">
+                  <i class="fa-solid fa-download"></i> Download Predictions CSV
+                </a>
+              </div>
+
+              <div class="table-responsive">
+                <table class="cyber-table" id="batch-preview-table">
+                  <thead><tr><th>Level 1</th><th>L1 Confidence</th><th>Attack Category</th><th>Confidence</th><th>Predicted Metric</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 7. DOCUMENTATION ================= -->
+      <section id="tab-docs" class="tab-pane">
+        <div class="panel">
+          <div class="panel-header">
+            <h3><i class="fa-solid fa-book-bookmark"></i> System Architecture & Mathematical Foundations</h3>
+            <span class="badge-soc">Semester 5 AI Project</span>
+          </div>
+
+          <div style="line-height:1.6; font-size:0.92rem; color:var(--text-muted); display:flex; flex-direction:column; gap:20px;">
+            <div>
+              <h4 style="color:var(--cyber-green); margin-bottom:8px;">1. Project Objective</h4>
+              <p>
+                CyberGuard ML resolves the challenges of modern network defense by utilizing a multi-tiered architecture:
+                fast primary triage via <b>Level 1 Binary Classification</b>, fine-grained threat taxonomy via 
+                <b>Level 2 Multiclass Classification</b> with class probabilities, and continuous connection modeling via <b>Level 3 Regression</b>.
+              </p>
+            </div>
+
+            <div>
+              <h4 style="color:var(--cyber-cyan); margin-bottom:8px;">2. Confidence Score Computation</h4>
+              <p>
+                Unlike basic heuristics or regression-derived scores, the <b>Attack Type Confidence Score (1–100%)</b> is computed directly from 
+                the trained multiclass model's internal class posterior probabilities:
+                <code>Confidence = max(predict_proba(X)) * 100%</code>.
+              </p>
+            </div>
+
+            <div>
+              <h4 style="color:var(--amber-reg); margin-bottom:8px;">3. Regression Formulations & Continuous Metrics</h4>
+              <p>
+                The regression pipeline predicts continuous connection flow parameters (such as <code>Flow Duration</code> or <code>Flow Bytes/s</code>) 
+                to establish behavioral baselines. It is evaluated using:
+              </p>
+              <ul style="margin-left:20px; margin-top:8px;">
+                <li><b>MAE (Mean Absolute Error):</b> \(\frac{1}{n} \sum |y_i - \hat{y}_i|\)</li>
+                <li><b>MSE (Mean Squared Error):</b> \(\frac{1}{n} \sum (y_i - \hat{y}_i)^2\)</li>
+                <li><b>RMSE (Root Mean Squared Error):</b> \(\sqrt{\text{MSE}}\)</li>
+                <li><b>R² (Coefficient of Determination):</b> \(1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}\)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- LIGHTBOX MODAL FOR PLOT ZOOM -->
+  <div class="modal-overlay" id="image-modal" onclick="closeImageModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closeImageModal()">&times;</button>
+      <h3 id="modal-title" style="margin-bottom:14px; font-size:1.1rem; color:var(--cyber-cyan)">Plot Preview</h3>
+      <img id="modal-img" src="" alt="Plot preview" style="width:100%; height:auto; border-radius:var(--radius-md);">
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
