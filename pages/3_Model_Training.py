@@ -62,7 +62,7 @@ with col_settings_2:
         default_algos = ["Linear Regression", "Decision Tree Regressor", "Random Forest Regressor"]
     else:
         available_algo_options = list(AVAILABLE_MODELS.keys())
-        default_algos = ["Logistic Regression", "Decision Tree", "Random Forest"]
+        default_algos = ["Logistic Regression", "Decision Tree", "Random Forest", "K-Nearest Neighbors (KNN)", "Support Vector Machine (SVM)"]
         
     selected_models = st.multiselect(
         "Choose Algorithms to Train:",
